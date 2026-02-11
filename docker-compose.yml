@@ -1,0 +1,50 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+version: '3.8'
+
+services:
+  cloudstack-simulator:
+    build:
+      context: .
+      args:
+        # CloudStack version to build. Supports n and n-1 releases.
+        # Examples: 4.20.1.0, 4.19.1.0, main
+        CS_VERSION: ${CS_VERSION:-4.20.1.0}
+    image: cloudstack-simulator-usage:${CS_VERSION:-4.20.1.0}
+    container_name: cloudstack-simulator-usage
+    ports:
+      - "8080:8080"    # CloudStack UI
+      - "8096:8096"    # CloudStack API (unauthenticated integration port)
+      - "5050:5050"    # Internal simulator port
+    environment:
+      # Usage aggregation interval in minutes (default: 5 for dev/testing)
+      # Production default is 1440 (daily). Lower values = faster usage record generation.
+      - USAGE_AGGREGATION_RANGE=${USAGE_AGGREGATION_RANGE:-5}
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8096/client/api?command=listZones&response=json"]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 180s
+    restart: unless-stopped
+
+volumes:
+  db-data:
+    driver: local
