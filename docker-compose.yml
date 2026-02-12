@@ -25,7 +25,7 @@ services:
         # CloudStack version to build. Supports n and n-1 releases.
         # Examples: 4.20.1.0, 4.19.1.0, main
         CS_VERSION: ${CS_VERSION:-4.20.1.0}
-    image: cloudstack-simulator-usage:${CS_VERSION:-4.20.1.0}
+    image: vickyinfra/cloudstack-simulator-usage:${CS_VERSION:-4.20.1.0}
     container_name: cloudstack-simulator-usage
     ports:
       - "8080:8080"    # CloudStack UI
