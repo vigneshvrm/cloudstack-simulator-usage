@@ -36,6 +36,15 @@ RUN find /var/lib/mysql -type f -exec touch {} \; \
     && mysqladmin shutdown \
     && rm /tmp/setup-usage.sql
 
+# ── Pre-build usage server classpath (avoids Maven at runtime) ────────
+RUN cd /root && mvn -pl usage dependency:build-classpath -q \
+    -DincludeScope=runtime -Dmdep.outputFile=/tmp/usage-cp.txt \
+    && echo '#!/bin/bash' > /usr/local/bin/start-usage.sh \
+    && echo 'exec java -Dcatalina.home=/root/utils \' >> /usr/local/bin/start-usage.sh \
+    && echo '  -cp /root/usage/target/classes:/root/usage/target/transformed:$(cat /tmp/usage-cp.txt) \' >> /usr/local/bin/start-usage.sh \
+    && echo '  com.cloud.usage.UsageServer' >> /usr/local/bin/start-usage.sh \
+    && chmod +x /usr/local/bin/start-usage.sh
+
 # ── Replace supervisord config with our 4-service version ─────────────
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
