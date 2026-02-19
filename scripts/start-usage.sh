@@ -37,5 +37,5 @@ echo "[usage] Config applied via API (aggregation_range=${RANGE} min)"
 echo "[usage] Starting UsageServer..."
 exec java -Xms128m -Xmx512m \
   -Dcatalina.home=/etc/cloudstack/usage \
-  -cp /etc/cloudstack/usage:/root/usage/target/classes:/root/usage/target/transformed:$(cat /tmp/usage-cp.txt) \
+  -cp "/etc/cloudstack/usage:/root/usage/target/classes:/root/usage/target/transformed:$(cat /tmp/usage-cp.txt):/root/client/target/lib/*" \
   com.cloud.usage.UsageServer

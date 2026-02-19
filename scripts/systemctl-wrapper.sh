@@ -6,9 +6,11 @@
 if [ "$1" = "status" ] && [ "$2" = "cloudstack-usage" ]; then
   STATUS=$(supervisorctl status cloudstack-usage 2>/dev/null)
   if echo "$STATUS" | grep -q "RUNNING"; then
+    echo "  Loaded: loaded (/etc/supervisor/conf.d/cloudstack-usage.conf; enabled)"
     echo "  Active: active (running)"
     exit 0
   else
+    echo "  Loaded: loaded (/etc/supervisor/conf.d/cloudstack-usage.conf; enabled)"
     echo "  Active: inactive (dead)"
     exit 3
   fi
