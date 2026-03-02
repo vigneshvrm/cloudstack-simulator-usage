@@ -6,6 +6,13 @@ FROM apache/cloudstack-simulator:${CS_VERSION}
 LABEL org.opencontainers.image.title="CloudStack Simulator with Usage Service"
 LABEL org.opencontainers.image.description="Official CloudStack Simulator + Usage Service for billing/metering"
 
+# Copy event-bus plugin JARs (including RabbitMQ) to management server classpath.
+# These are compiled during the base image build but not added to client/target/lib/,
+# causing ClassNotFoundException when Spring tries to load RabbitMQEventBus.
+RUN cp /root/plugins/event-bus/rabbitmq/target/cloud-mom-rabbitmq-*.jar /root/client/target/lib/ 2>/dev/null || true \
+ && cp /root/plugins/event-bus/kafka/target/cloud-mom-kafka-*.jar /root/client/target/lib/ 2>/dev/null || true \
+ && cp /root/plugins/event-bus/webhook/target/cloud-mom-webhook-*.jar /root/client/target/lib/ 2>/dev/null || true
+
 # Pre-build usage server classpath (avoids Maven at runtime)
 RUN cd /root && mvn -pl usage dependency:build-classpath -q \
     -DincludeScope=runtime -Dmdep.outputFile=/tmp/usage-cp.txt
