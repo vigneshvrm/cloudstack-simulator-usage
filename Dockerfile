@@ -6,6 +6,14 @@ FROM apache/cloudstack-simulator:${CS_VERSION}
 LABEL org.opencontainers.image.title="CloudStack Simulator with Usage Service"
 LABEL org.opencontainers.image.description="Official CloudStack Simulator + Usage Service for billing/metering"
 
+# Fix MySQL max_connections — copy existing cloudstack-docker.cnf to the MySQL config dir.
+# The file already exists in the image with max_connections=1000, innodb_lock_wait_timeout=600,
+# innodb_rollback_on_timeout=1 but is in the wrong location and never loaded by MySQL.
+# Without this, MySQL starts with default max_connections=151, which is exhausted when
+# StackBill micro-services + CloudStack management + usage server all connect simultaneously.
+RUN cp /root/tools/docker/mariadb-docker/cloudstack-docker.cnf \
+       /etc/mysql/conf.d/cloudstack.cnf
+
 # Copy event-bus plugin JARs (including RabbitMQ) to management server classpath.
 # These are compiled during the base image build but not added to client/target/lib/,
 # causing ClassNotFoundException when Spring tries to load RabbitMQEventBus.
