@@ -6,13 +6,6 @@ echo "[usage] Waiting for MySQL..."
 until mysqladmin ping --silent 2>/dev/null; do sleep 2; done
 echo "[usage] MySQL is ready"
 
-# CRITICAL: Increase MySQL max_connections for dual-process operation
-# Default max_connections=151 is too low when both management server and usage server
-# create HikariCP connection pools for 3 databases each (cloud, cloud_usage, simulator).
-# Without this, MySQL rejects new connections and the management server's pool starves.
-mysql -e "SET GLOBAL max_connections = 350;" 2>/dev/null || true
-echo "[usage] MySQL max_connections raised to 350"
-
 # Wait for management server API to be fully responsive
 # This ensures DB initialization is complete and configuration table is populated
 echo "[usage] Waiting for management server API..."
