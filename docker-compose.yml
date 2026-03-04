@@ -28,6 +28,10 @@ services:
     image: vickyinfra/cloudstack-simulator-usage:${CS_VERSION:-4.20.1.0}
     container_name: cloudstack-simulator-usage
 
+    ports:
+      - "8080:5050"   # CloudStack UI (Vue dev server)
+      - "8096:8096"   # Unauthenticated API (integration port)
+
     environment:
       # Usage aggregation interval in minutes (default: 5 for dev/testing)
       # Production default is 1440 (daily). Lower values = faster usage record generation.
