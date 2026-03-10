@@ -41,6 +41,15 @@ RUN mkdir -p /etc/cloudstack/usage/conf
 COPY conf/db.properties /etc/cloudstack/usage/db.properties
 COPY conf/db.properties /etc/cloudstack/usage/conf/db.properties
 
+# Fix SYSLOG appender cascade: the log4j config sends WARN+ logs to localhost syslog,
+# but nothing listens for syslog inside the container. Every warning triggers a failed
+# socket write, which itself generates more log attempts — a cascading error loop.
+# Remove the SYSLOG appender definition and all AppenderRef references to it.
+RUN find /root -name "log4j-cloud.xml" -exec sed -i \
+      -e '/<Syslog name="SYSLOG"/,/<\/Syslog>/d' \
+      -e '/<AppenderRef ref="SYSLOG"/d' \
+    {} \; 2>/dev/null || true
+
 # Copy log4j config from management server (usage server needs it)
 RUN cp /root/utils/conf/log4j-cloud.xml /etc/cloudstack/usage/log4j-cloud.xml 2>/dev/null || true
 
