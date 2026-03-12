@@ -15,11 +15,12 @@ done
 echo "[usage] Management server API is ready"
 
 # Apply usage config via CloudStack API (idempotent — safe on every restart)
-RANGE="${USAGE_AGGREGATION_RANGE:-5}"
+RANGE="${USAGE_AGGREGATION_RANGE:-1440}"
+EXEC_TIME="${USAGE_EXEC_TIME:-00:15}"
 curl -sf "http://localhost:8096/client/api?command=updateConfiguration&name=enable.usage.server&value=true&response=json" >/dev/null 2>&1
 curl -sf "http://localhost:8096/client/api?command=updateConfiguration&name=usage.stats.job.aggregation.range&value=${RANGE}&response=json" >/dev/null 2>&1
-curl -sf "http://localhost:8096/client/api?command=updateConfiguration&name=usage.stats.job.exec.time&value=00:00&response=json" >/dev/null 2>&1
-echo "[usage] Config applied via API (aggregation_range=${RANGE} min)"
+curl -sf "http://localhost:8096/client/api?command=updateConfiguration&name=usage.stats.job.exec.time&value=${EXEC_TIME}&response=json" >/dev/null 2>&1
+echo "[usage] Config applied via API (aggregation_range=${RANGE} min, exec_time=${EXEC_TIME})"
 
 # Start usage server via Java with ISOLATED db.properties (small connection pools)
 # The usage server gets its own db.properties at /etc/cloudstack/usage/ with:

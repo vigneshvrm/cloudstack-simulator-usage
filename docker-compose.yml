@@ -33,9 +33,10 @@ services:
       - "8096:8096"   # Unauthenticated API (integration port)
 
     environment:
-      # Usage aggregation interval in minutes (default: 5 for dev/testing)
-      # Production default is 1440 (daily). Lower values = faster usage record generation.
-      - USAGE_AGGREGATION_RANGE=${USAGE_AGGREGATION_RANGE:-5}
+      # Usage aggregation interval in minutes (default: 1440 = daily)
+      - USAGE_AGGREGATION_RANGE=${USAGE_AGGREGATION_RANGE:-1440}
+      # Time when the daily usage job runs (HH:MM format)
+      - USAGE_EXEC_TIME=${USAGE_EXEC_TIME:-00:15}
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
